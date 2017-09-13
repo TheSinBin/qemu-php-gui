@@ -1,7 +1,9 @@
 <?php 
+$passwd=""; // This is password value
 echo '
 	
  <form action="/index.php" method="post" autocomplete="on">
+ Password:<input type="password" name="passwd" value="" >
   <TABLE border=1  width="%25">
   <TR>
       <TD>Boot & RAM</TD>
@@ -50,7 +52,7 @@ echo '
           
   </TR>
   </TABLE>
-  <input type="submit" value="Start Qemu" >  
+  <input type="submit" value="Start Qemu" >
 </form> 
 
  ';
@@ -103,9 +105,14 @@ if (is_numeric($_POST["RAM"])){
 			if(is_numeric($_POST["cores"])){
 				$a=$a." -smp cpus=".$_POST["cores"];
 			}
-	
+	$a=$a." 2> /dev/null | cat > /dev/null &";
 	}
-	exec($a);
 	echo $a;
+	if ($_POST["passwd"] == $passwd){
+		shell_exec($a);
+	}else{
+		echo "Invalid Password:";
+		echo $_POST["passwd"]."<br>";
+	}
 }
 	?>
