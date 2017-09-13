@@ -1,5 +1,5 @@
 <?php 
-$passwd="keskin"; // This is password value
+$passwd=""; // This is password value
 echo '
 	
  <form action="/index.php" method="post" autocomplete="on">
