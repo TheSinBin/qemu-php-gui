@@ -14,7 +14,7 @@ echo '
   <TR>
       <TD>Boot from:
           <br><input type="radio" name="chooseone" value="c">Hda
-          <br><input type="radio" name="chooseone" value="d">Cdrom
+          <br><input type="radio" name="chooseone" value="d" selected="selected" >Cdrom
           <br><input type="radio" name="chooseone" value="n">Network
           <br>RAM:<br><input type="number" name="RAM"  min="0" value="2048" style="width: 7em">Mb<br>  
       </TD><TD>Hda:
@@ -30,7 +30,7 @@ echo '
         
       </TD>
       <TD>VGA:
-          <br><input type="radio" name="choosetwo" value="null">Default
+          <br><input type="radio" name="choosetwo" value="null" selected="selected" >Default
           <br><input type="radio" name="choosetwo" value="qxl">QXL
           <br><input type="radio" name="choosetwo" value="cirrus">Cirrus
           <br><input type="radio" name="choosetwo" value="std">Std
@@ -39,7 +39,7 @@ echo '
       <TD>Display:
           <br><input type="radio" name="choosezero" value="sdl">SDL
           <br><input type="radio" name="choosezero" value="none">No Display
-          <br><input type="radio" name="choosezero" value="vnc">VNC:
+          <br><input type="radio" name="choosezero" value="vnc" selected="selected" >VNC:
           <input type="number" name="vnc_port" min="0" value="0" style="width: 7em">
           <br>Devices:
           <br><input type="checkbox" name="mouse" value="true" checked>Usb Mouse
