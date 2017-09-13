@@ -8,7 +8,7 @@ echo '
   <TR>
       <TD>Boot & RAM</TD>
       <TD>Storage</TD>
-      <TD>VGA </TD>
+      <TD>VGA & Ports</TD>
       <TD>Display & Devices</TD>
   </TR>
   <TR>
@@ -16,7 +16,7 @@ echo '
           <br><input type="radio" name="chooseone" value="c">Hda
           <br><input type="radio" name="chooseone" value="d" checked="checked" >Cdrom
           <br><input type="radio" name="chooseone" value="n">Network
-          <br>RAM:<br><input type="number" name="RAM"  min="0" value="2048" style="width: 7em">Mb<br>  
+          <p>RAM:<br><input type="number" name="RAM"  min="0" value="2048" style="width: 7em">Mb<br>  
       </TD><TD>Hda:
           <br><input type="text" name="hda" value="">
           <br>Hdb:
@@ -35,13 +35,14 @@ echo '
           <br><input type="radio" name="choosetwo" value="cirrus">Cirrus
           <br><input type="radio" name="choosetwo" value="std">Std
           <br><input type="radio" name="choosetwo" value="vmware">VmWare
+          <p>Redirect port:(H:G,H:G)<br><input type="text" name="redir">
       </TD>
       <TD>Display:
-          <br><input type="radio" name="choosezero" value="sdl">SDL
+          <br><input type="radio" name="choosezero" value="sdl" checked="checked" >SDL
           <br><input type="radio" name="choosezero" value="none">No Display
-          <br><input type="radio" name="choosezero" value="vnc" checked="checked" >VNC:
+          <br><input type="radio" name="choosezero" value="vnc" " >VNC:
           <input type="number" name="vnc_port" min="0" value="0" style="width: 7em">
-          <br>Devices:
+          <p>Devices:
           <br><input type="checkbox" name="mouse" value="true" checked>Usb Mouse
           <br><input type="checkbox" name="tablet" value="true" checked>Usb Tablet
           <br><input type="checkbox" name="host_cpu" value="true" checked>Host CPU
@@ -56,9 +57,19 @@ echo '
 </form> 
 
  ';
-
 if (isset($_POST["RAM"])){
-$a="qemu-system-x86_64 --enable-kvm ";
+	$port=random_int(0,9999);
+$a="qemu-system-x86_64 --enable-kvm -net nic,model=virtio -net user,hostfwd=tcp::".$port."-:22";
+
+if ($_POST["redir"] != ""){
+		$redir=$_POST["redir"];
+		$redir=",".$redir;
+		$redir=str_replace(" ","",$redir);
+		$redir=str_replace(":","::",$redir);
+		$redir=str_replace(","," -redir tcp:",$redir);
+		$a=$a.$redir;
+	}
+	
 if (is_numeric($_POST["RAM"])){
 		$a=$a." -m ".$_POST["RAM"];
 	}
@@ -105,13 +116,14 @@ if (is_numeric($_POST["RAM"])){
 			if(is_numeric($_POST["cores"])){
 				$a=$a." -smp cpus=".$_POST["cores"];
 			}
-	$a=$a." 2> /dev/null | cat > /dev/null &";
+	$a=$a." 2> error.txt | cat > /dev/null &";
 	}
-	echo $a;
+	//echo $a;
 	if ($_POST["passwd"] == $passwd){
 		shell_exec($a);
+		echo "SSh port:".$port;
 	}else{
-		echo "Invalid Password:";
+		echo "<p>Invalid Password:";
 		echo $_POST["passwd"]."<br>";
 	}
 }
