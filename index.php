@@ -59,7 +59,7 @@ echo '
  ';
 if (isset($_POST["RAM"])){
 	$port=random_int(0,9999);
-$a="qemu-system-x86_64 --enable-kvm -net nic,model=virtio -net user,hostfwd=tcp::".$port."-:22";
+$a="qemu-system-x86_64 --enable-kvm -net nic -net user,hostfwd=tcp::".$port."-:22";
 
 if ($_POST["redir"] != ""){
 		$redir=$_POST["redir"];
