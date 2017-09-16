@@ -1,6 +1,7 @@
 <?php 
 $user="";			// This is user value
-$passwd="";	// This is password value
+$passwd="";			// This is password value
+$folder="";			// This is falder value (Example: /home/user/imgs/)
 if (isset($_GET["cmd"])){
 	if($_GET["cmd"] == "logout"){
 		setcookie("passwd","");
@@ -10,16 +11,59 @@ if (isset($_GET["cmd"])){
 		shell_exec("killall qemu-system-x86_64 2> /dev/null | cat > /dev/null &");
 		echo 'All VM is Killed<br>';
 	}
+
 }
+
 
 if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
 	if ($_COOKIE['user'] != ""){
-	echo "Logined from:".$_COOKIE['user'].'&nbsp&nbsp&nbsp<a href="./index.php?cmd=logout">Logout</a>';
+	echo 'Login from:<b>'.$_COOKIE['user'].'</b>&nbsp&nbsp&nbsp<a href="./index.php?cmd=logout">Logout</a>';
 	}
+
+	if($_GET["cmd"]=="create"){
+		echo '<form action="/index.php?cmd=create" method="post" autocomplete="on">
+ Name:&nbsp<input type="text" name="name" value="" >
+ Size:&nbsp<input type="text" name="size" value="" >Gb
+ <br><input type="submit" value="Cleate" ></form>';
+  if(isset($_POST['name']) AND isset($_POST['size'])){
+	 if(is_numeric($_POST['size'])){
+		 $size=$_POST["size"];
+		 $name=str_replace(";","",$_POST["name"]);
+		 $name=str_replace("..",".",$name);
+		 $name=str_replace("/","",$name);
+		 if(is_file($folder.$name)){
+			 shell_exec("rm -f ".$folder.$name);
+             echo "Disk image delete and ";
+			 }
+			shell_exec("qemu-img create ".$folder.$name." ".$size."G");
+			echo "New disk image create: ".$name."<br>Size: ".$size."Gb";
+  }else{
+	  echo "Invalid size";
+	  }
+	}
+	exit;
+}
+if($_GET["cmd"]=="delete"){
+		echo '<form action="/index.php?cmd=delete" method="post" autocomplete="on">
+ Name:&nbsp<input type="text" name="name" value="" >
+ <br><input type="submit" value="Delete" ></form>';
+	if(isset($_POST['name'])){
+		$name=str_replace(";","",$_POST["name"]);
+		$name=str_replace("..",".",$name);
+		$name=str_replace("/","",$name);
+		if(is_file($folder.$name)){
+			shell_exec("rm -f ".$folder.$name);
+            echo "Disk image deleted.";
+		}else{
+			echo "File not found";
+			}
+  }
+		exit;
+}
+
 	echo '
 	
  <form action="/index.php" method="post" autocomplete="on">';
- //echo 'Password:<input type="password" name="passwd" value="" >';
   echo '<TABLE border=1  width="%25">
   <TR>
       <TD>Boot & RAM</TD>
@@ -69,7 +113,7 @@ if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
           
   </TR>
   </TABLE>
-  <input type="submit" value="Start Qemu" ><a href="./index.php?cmd=killall">Kill All VM</a>
+  <input type="submit" value="Start Qemu" ><a href="./index.php?cmd=killall">Kill All VM</a>&nbsp&nbsp&nbsp<a href="./index.php?cmd=create">Create New Disk Image</a>
 
 </form> 
 
@@ -89,19 +133,19 @@ if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
 	if (is_numeric($_POST["RAM"])){
 			$a=$a." -m ".$_POST["RAM"];
 		}
-		if (is_file($_POST["hda"]) or is_readable($_POST["hda"])){
+		if (is_readable($_POST["hda"]) AND !is_dir($_POST["hda"])){
 			$a=$a." -hda ".$_POST["hda"];
 		}
-		if (is_file($_POST["hdb"])or is_readable($_POST["hdb"])){
+		if (is_readable($_POST["hdb"]) AND !is_dir($_POST["hdb"])){
 			$a=$a." -hdb ".$_POST["hdb"];
 		}
-		if (is_file($_POST["hdc"])or is_readable($_POST["hdc"])){
+		if (is_readable($_POST["hdc"]) AND !is_dir($_POST["hdc"])){
 			$a=$a." -hdb ".$_POST["hdc"];
 		}
-		if (is_file($_POST["hdd"])or is_readable($_POST["hdd"])){
+		if (is_readable($_POST["hdd"]) AND !is_dir($_POST["hdd"])){
 			$a=$a." -hdb ".$_POST["hdd"];
 		}
-		if (is_file($_POST["cdrom"])or is_readable($_POST["cdrom"])){
+		if (is_readable($_POST["cdrom"]) AND !is_dir($_POST["cdrom"])){
 			$a=$a." -cdrom ".$_POST["cdrom"];
 		}
 	
@@ -143,8 +187,8 @@ if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
 			echo $_POST["passwd"]."<br>";
 		}
 	}
-}
-	
+
+}	
 else{
 	if(isset($_POST['passwd']) AND isset($_POST['user'])){
 		session_start();
@@ -156,5 +200,4 @@ else{
  <br>Password:&nbsp<input type="password" name="passwd" value="" >
  <br><input type="submit" value="Login" ></form>';
 }
-
 		?>
