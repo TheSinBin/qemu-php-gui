@@ -1,10 +1,26 @@
 <?php 
-$passwd=""; // This is password value
-echo '
+$user="";			// This is user value
+$passwd="";	// This is password value
+if (isset($_GET["cmd"])){
+	if($_GET["cmd"] == "logout"){
+		setcookie("passwd","");
+		setcookie("user","");
+	}
+	if($_GET["cmd"]=="killall"){
+		shell_exec("killall qemu-system-x86_64 2> /dev/null | cat > /dev/null &");
+		echo 'All VM is Killed<br>';
+	}
+}
+
+if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
+	if ($_COOKIE['user'] != ""){
+	echo "Logined from:".$_COOKIE['user'].'&nbsp&nbsp&nbsp<a href="./index.php?cmd=logout">Logout</a>';
+	}
+	echo '
 	
- <form action="/index.php" method="post" autocomplete="on">
- Password:<input type="password" name="passwd" value="" >
-  <TABLE border=1  width="%25">
+ <form action="/index.php" method="post" autocomplete="on">';
+ //echo 'Password:<input type="password" name="passwd" value="" >';
+  echo '<TABLE border=1  width="%25">
   <TR>
       <TD>Boot & RAM</TD>
       <TD>Storage</TD>
@@ -53,78 +69,92 @@ echo '
           
   </TR>
   </TABLE>
-  <input type="submit" value="Start Qemu" >
+  <input type="submit" value="Start Qemu" ><a href="./index.php?cmd=killall">Kill All VM</a>
+
 </form> 
 
  ';
-if (isset($_POST["RAM"])){
-	$port=random_int(0,9999);
-$a="qemu-system-x86_64 --enable-kvm -net nic -net user,hostfwd=tcp::".$port."-:22";
-
-if ($_POST["redir"] != ""){
-		$redir=$_POST["redir"];
-		$redir=",".$redir;
-		$redir=str_replace(" ","",$redir);
-		$redir=str_replace(":","::",$redir);
-		$redir=str_replace(","," -redir tcp:",$redir);
-		$a=$a.$redir;
-	}
+	if (isset($_POST["RAM"])){
+		$port=random_int(0,9999);
+		$a="qemu-system-x86_64 --enable-kvm -net nic -net user,hostfwd=tcp::".$port."-:22";
+		if ($_POST["redir"] != ""){
+			$redir=$_POST["redir"];
+			$redir=",".$redir;
+			$redir=str_replace(" ","",$redir);
+			$redir=str_replace(":","::",$redir);
+			$redir=str_replace(","," -redir tcp:",$redir);
+			$a=$a.$redir;
+		}
+		
+	if (is_numeric($_POST["RAM"])){
+			$a=$a." -m ".$_POST["RAM"];
+		}
+		if (is_file($_POST["hda"])){
+			$a=$a." -hda ".$_POST["hda"];
+		}
+		if (is_file($_POST["hdb"])){
+			$a=$a." -hdb ".$_POST["hdb"];
+		}
+		if (is_file($_POST["hdc"])){
+			$a=$a." -hdb ".$_POST["hdc"];
+		}
+		if (is_file($_POST["hdd"])){
+			$a=$a." -hdb ".$_POST["hdd"];
+		}
+		if (is_file($_POST["cdrom"])){
+			$a=$a." -cdrom ".$_POST["cdrom"];
+		}
 	
-if (is_numeric($_POST["RAM"])){
-		$a=$a." -m ".$_POST["RAM"];
-	}
-	if (is_file($_POST["hda"])){
-		$a=$a." -hda ".$_POST["hda"];
-	}
-	if (is_file($_POST["hdb"])){
-		$a=$a." -hdb ".$_POST["hdb"];
-	}
-	if (is_file($_POST["hdc"])){
-		$a=$a." -hdb ".$_POST["hdc"];
-	}
-	if (is_file($_POST["hdd"])){
-		$a=$a." -hdb ".$_POST["hdd"];
-	}
-	if (is_file($_POST["cdrom"])){
-		$a=$a." -cdrom ".$_POST["cdrom"];
-	}
-	
-	if (isset($_POST["choosezero"])){
-		$a=$a." -display ".$_POST["choosezero"];
-		if ($_POST["choosezero"] == "vnc"){
-			if(is_numeric($_POST["vnc_port"])){
-				$a=$a."=:".$_POST["vnc_port"];
+		if (isset($_POST["choosezero"])){
+			$a=$a." -display ".$_POST["choosezero"];
+			if ($_POST["choosezero"] == "vnc"){
+				if(is_numeric($_POST["vnc_port"])){
+					$a=$a."=:".$_POST["vnc_port"];
+				}
 			}
 		}
-	}
-	if (isset($_POST["chooseone"])){
-		$a=$a." -boot ".$_POST["chooseone"];
-	}
-	if (isset($_POST["choosetwo"])){
-		if ($_POST["choosetwo"] != "null"){
-			$a=$a." -vga ".$_POST["choosetwo"];
+		if (isset($_POST["chooseone"])){
+			$a=$a." -boot ".$_POST["chooseone"];
 		}
-	}
-	if ($_POST["mouse"] == "true"){
-		$a=$a." -usbdevice mouse";
-	}
-	if ($_POST["tablet"] == "true"){
-		$a=$a." -usbdevice tablet";
-	}
-	if ($_POST["host_cpu"] == "true"){
-		$a=$a." -cpu host";
-			if(is_numeric($_POST["cores"])){
-				$a=$a." -smp cpus=".$_POST["cores"];
+		if (isset($_POST["choosetwo"])){
+			if ($_POST["choosetwo"] != "null"){
+				$a=$a." -vga ".$_POST["choosetwo"];
 			}
-	$a=$a." 2> error.txt | cat > /dev/null &";
-	}
-	//echo $a;
-	if ($_POST["passwd"] == $passwd){
-		shell_exec($a);
-		echo "SSh port:".$port;
-	}else{
-		echo "<p>Invalid Password:";
-		echo $_POST["passwd"]."<br>";
+		}
+		if ($_POST["mouse"] == "true"){
+			$a=$a." -usbdevice mouse";
+		}
+		if ($_POST["tablet"] == "true"){
+			$a=$a." -usbdevice tablet";
+		}
+		if ($_POST["host_cpu"] == "true"){
+			$a=$a." -cpu host";
+				if(is_numeric($_POST["cores"])){
+					$a=$a." -smp cpus=".$_POST["cores"];
+				}
+		$a=$a." 2> error.txt | cat > /dev/null &";
+		}
+		//echo $a;
+		if ($_POST["passwd"] == $passwd){
+			shell_exec($a);
+			echo "SSh port:".$port;
+		}else{
+			echo "<p>Invalid Password:";
+			echo $_POST["passwd"]."<br>";
+		}
 	}
 }
-	?>
+	
+else{
+	if(isset($_POST['passwd']) AND isset($_POST['user'])){
+		session_start();
+		setcookie("passwd",$_POST['passwd'],0);
+		setcookie("user",$_POST['user'],0);
+		}
+		echo '<form action="/index.php" method="post" autocomplete="on">
+ User:&nbsp<input type="password" name="user" value="" >
+ <br>Password:&nbsp<input type="password" name="passwd" value="" >
+ <br><input type="submit" value="Login" ></form>';
+}
+
+		?>
