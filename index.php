@@ -89,19 +89,19 @@ if (($_COOKIE['passwd'] == $passwd) AND ($_COOKIE['user'] == $user)){
 	if (is_numeric($_POST["RAM"])){
 			$a=$a." -m ".$_POST["RAM"];
 		}
-		if (is_file($_POST["hda"])){
+		if (is_file($_POST["hda"]) or is_readable($_POST["hda"])){
 			$a=$a." -hda ".$_POST["hda"];
 		}
-		if (is_file($_POST["hdb"])){
+		if (is_file($_POST["hdb"])or is_readable($_POST["hdb"])){
 			$a=$a." -hdb ".$_POST["hdb"];
 		}
-		if (is_file($_POST["hdc"])){
+		if (is_file($_POST["hdc"])or is_readable($_POST["hdc"])){
 			$a=$a." -hdb ".$_POST["hdc"];
 		}
-		if (is_file($_POST["hdd"])){
+		if (is_file($_POST["hdd"])or is_readable($_POST["hdd"])){
 			$a=$a." -hdb ".$_POST["hdd"];
 		}
-		if (is_file($_POST["cdrom"])){
+		if (is_file($_POST["cdrom"])or is_readable($_POST["cdrom"])){
 			$a=$a." -cdrom ".$_POST["cdrom"];
 		}
 	
